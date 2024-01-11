@@ -10,7 +10,8 @@ logging:
     org.springframework.r2dbc: debug
 spring:
   r2dbc:
-    password: 123456
-    username: root
-    url: r2dbc:mysql://127.0.0.1:3306
-    name: catm
+#    password: 123456
+#    username: root
+#    url: r2dbc:mysql://127.0.0.1:3306
+#    name: catm
+    url: ${MYSQL_DB_URL:r2dbc:mysql://root:IzO6Jqs5ncX.Nq6LrKRUKoSx@127.0.0.1:3306/catm?charset=utf8mb4}
