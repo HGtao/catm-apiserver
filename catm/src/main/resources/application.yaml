@@ -2,5 +2,5 @@ spring:
   r2dbc:
     password: 991216..tao1844631486TAO
     username: root
-    url: r2dbc:mysql://124.222.37.186:3306/jdk21_demo01
-    name: jdk21_demo01
+    url: r2dbc:mysql://124.222.37.186:3306
+    name: catm
