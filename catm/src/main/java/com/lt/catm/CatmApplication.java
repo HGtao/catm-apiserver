@@ -9,7 +9,6 @@ public class CatmApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(CatmApplication.class, args);
-		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<success>>>>>>>>>>>>>>>>>>>>>>>");
 	}
 
 }
