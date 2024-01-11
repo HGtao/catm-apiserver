@@ -4,3 +4,4 @@ spring:
     username: root
     url: r2dbc:mysql://124.222.37.186:3306
     name: catm
+#    url: ${MYSQL_DB_URL}

@@ -1,0 +1,39 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '8000:8000'
+    networks:
+      - catm-net
+    environment:
+      MYSQL_DB_URL: r2dbc:mysql://root:IzO6Jqs5ncX.Nq6LrKRUKoSx@127.0.0.1:3306/catm?charset=utf8mb4
+    depends_on:
+      - mysql
+      - redis
+
+  mysql:
+    image: mysql:8.2.0
+    restart: always
+    networks:
+      - catm-net
+    environment:
+      MYSQL_DATABASE: catm
+      MYSQL_ROOT_PASSWORD: IzO6Jqs5ncX.Nq6LrKRUKoSx
+    volumes:
+      - catm-mysql-volume:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  redis:
+    image: redis
+    restart: always
+    networks:
+      - catm-net
+
+volumes:
+  catm-mysql-volume:
+
+networks:
+  catm-net:
