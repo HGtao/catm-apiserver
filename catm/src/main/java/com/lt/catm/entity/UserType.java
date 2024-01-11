@@ -6,18 +6,21 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table("user")
-public class User {
-
+@Table("user_type")
+public class UserType {
     @Id
     private Long id;
 
-    private String userName;
+    private Integer userType;
 
-    private Integer age;
+    //时间 使用 LocalDateTime 也行
+    private Instant createTime;
 
-    private Long typeId;
+    private User user;
 }
