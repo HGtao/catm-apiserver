@@ -1,13 +1,12 @@
-#spring:
-#  r2dbc:
-#    password: 991216..tao1844631486TAO
-#    username: root
-#    url: r2dbc:mysql://124.222.37.186:3306
-#    name: catm
-#    url: ${MYSQL_DB_URL}
+server:
+  port: 8089
+
 logging:
   level:
     org.springframework.r2dbc: debug
+
 spring:
   r2dbc:
-    url: ${MYSQL_DB_URL:r2dbc:mysql://root:123456@127.0.0.1:3306/catm?charset=utf8mb4}
+    url: ${MYSQL_DB_URL:r2dbc:mysql://root:IzO6Jqs5ncX.Nq6LrKRUKoSx@127.0.0.1:3306/catm?charset=utf8mb4}
+  redis:
+    url: ${REDIS_URL:redis://127.0.0.1:6379/0}
