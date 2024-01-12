@@ -18,15 +18,15 @@ import com.lt.catm.common.RedisKeyUtil;
 
 
 @RestController
-public class KeyPair {
+public class KeyPairController {
     private final ReactiveRedisOperations<String, String> redisOperations;
 
     @Autowired
-    public KeyPair(ReactiveRedisOperations<String, String> redisOperations) {
+    public KeyPairController(ReactiveRedisOperations<String, String> redisOperations) {
         this.redisOperations = redisOperations;
     }
 
-    @GetMapping("login/key")
+    @GetMapping("/keypair")
     public Mono<ResponseModel<KeyPairSchema>> generateKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(2048);
