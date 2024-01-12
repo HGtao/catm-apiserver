@@ -8,6 +8,7 @@ import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +41,7 @@ public class DemoServiceImpl {
         //4.执行查询
         r2dbcEntityTemplate.select(query, User.class).subscribe(System.out::println);
     }
+
 
 
     public void testDatabaseClient() {
