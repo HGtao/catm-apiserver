@@ -10,10 +10,11 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.UUID;
 
-import com.lt.catm.Constants;
+import com.lt.catm.ResponseModel;
+import com.lt.catm.schema.KeyPairSchema;
+import com.lt.catm.common.RedisKeyUtil;
 
 
 @RestController
@@ -26,20 +27,19 @@ public class KeyPair {
     }
 
     @GetMapping("login/key")
-    public Mono<HashMap<String, String>> generateKeyPair() throws NoSuchAlgorithmException {
+    public Mono<ResponseModel<KeyPairSchema>> generateKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(2048);
         java.security.KeyPair keyPair = keyPairGenerator.generateKeyPair();
         // 随机uuid保存密钥对
-        String uuid = UUID.randomUUID().toString();
+        String kid = UUID.randomUUID().toString();
         String publicKey = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
         String privateKey = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
-        // 响应数据 TODO ylei 封装为实体返回
-        HashMap<String, String> response = new HashMap<>();
-        response.put("id", uuid);
-        response.put("public_key", publicKey);
+        // 响应数据
+        KeyPairSchema data = new KeyPairSchema(kid, publicKey);
+        ResponseModel<KeyPairSchema> response = new ResponseModel<>(data);
         // 设置密钥的过期时间5分钟, 并返回数据
-        String key = uuid + ":" + Constants.APP_NAME;
+        String key = RedisKeyUtil.getPrivateKeyCacheKey(kid);
         return redisOperations.opsForValue().set(key, privateKey, Duration.ofMinutes(5)).thenReturn(response);
     }
 }
