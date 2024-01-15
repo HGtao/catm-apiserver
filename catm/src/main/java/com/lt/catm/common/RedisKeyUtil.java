@@ -1,7 +1,5 @@
 package com.lt.catm.common;
 
-import com.lt.catm.Constants;
-
 
 public class RedisKeyUtil {
 

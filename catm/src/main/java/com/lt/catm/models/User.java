@@ -39,4 +39,9 @@ public class User {
     @Column("updated_at")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     public LocalDateTime updated_at;
+
+    public User (String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 }

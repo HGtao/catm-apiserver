@@ -10,3 +10,12 @@ spring:
     url: ${MYSQL_DB_URL:r2dbc:mysql://root:IzO6Jqs5ncX.Nq6LrKRUKoSx@127.0.0.1:3306/catm?charset=utf8mb4}
   redis:
     url: ${REDIS_URL:redis://127.0.0.1:6379/0}
+
+springdoc:
+  version: '@springdoc.version@'
+  swagger-ui:
+    display-request-duration: true
+    operationsSorter: method
+    disable-swagger-default-url: true
+    use-root-path: true
+
