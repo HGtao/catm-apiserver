@@ -1,6 +1,8 @@
 package com.lt.catm.controller;
 
-import com.lt.catm.annotation.JwtAuth;
+import com.lt.catm.auth.AuthUser;
+import com.lt.catm.auth.Jwt;
+import com.lt.catm.common.Constants;
 import com.lt.catm.common.RedisKeyUtil;
 import com.lt.catm.exceptions.HttpException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,6 +10,8 @@ import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -20,6 +24,7 @@ import javax.crypto.Cipher;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Duration;
 import java.util.Base64;
 
 
@@ -77,23 +82,22 @@ public class UserController {
     }
 
     @Operation(
-            description = "注册账号-(1000: decode password err)"
+            description = "注册账号-(1001: decode password err)"
     )
     @PostMapping("/register")
-    public Mono<ResponseModel<User>> create(@RequestBody UserController.CreateUserSchema userSchema) {
+    public Mono<ResponseModel<User>> create(@RequestBody UserController.CreateUserSchema userSchema, ServerHttpResponse response) {
         Mono<User> monoUser = decodePassword(userSchema.password, userSchema.kid).flatMap(password ->
                 Mono.just(new User(userSchema.username, passwordEncoder.encode(password))));
-        return monoUser.flatMap(user -> repository.save(user).thenReturn(new ResponseModel<>(user)));
-        // TODO ylei 签发jwt
-    }
-
-    @Operation(
-            description = "获取登录用户信息"
-    )
-//    @JwtAuth
-    @GetMapping("/test")
-    public Mono<ResponseModel<User>> read() {
-        // TODO HG 快实现
-        return Mono.just(new ResponseModel<>());
+        return monoUser.flatMap(user -> {
+            repository.save(user);
+            AuthUser authUser = new AuthUser(user.getId());
+            ResponseCookie jwtCookie = ResponseCookie.from(Constants.COOKIES_JWT_NAME, Jwt.create(authUser))
+                    .httpOnly(true)
+                    .maxAge(Duration.ofDays(7))
+                    .path("/")
+                    .build();
+            response.addCookie(jwtCookie);
+            return Mono.just(new ResponseModel<>(user));
+        });
     }
 }
