@@ -1,5 +1,6 @@
 package com.lt.catm.controller;
 
+import com.lt.catm.annotation.JwtAuth;
 import com.lt.catm.common.RedisKeyUtil;
 import com.lt.catm.exceptions.HttpException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import com.lt.catm.models.User;
@@ -83,12 +81,19 @@ public class UserController {
     )
     @PostMapping("/register")
     public Mono<ResponseModel<User>> create(@RequestBody UserController.CreateUserSchema userSchema) {
-        Mono<User> mono_user = decodePassword(userSchema.password, userSchema.kid).flatMap(password -> {
-            return Mono.just(new User(userSchema.username, passwordEncoder.encode(password)));
-        });
-        return mono_user.flatMap(user -> {
-            return repository.save(user).thenReturn(new ResponseModel<>(user));
-        });
+        Mono<User> monoUser = decodePassword(userSchema.password, userSchema.kid).flatMap(password ->
+                Mono.just(new User(userSchema.username, passwordEncoder.encode(password))));
+        return monoUser.flatMap(user -> repository.save(user).thenReturn(new ResponseModel<>(user)));
         // TODO ylei 签发jwt
+    }
+
+    @Operation(
+            description = "获取登录用户信息"
+    )
+//    @JwtAuth
+    @GetMapping("/test")
+    public Mono<ResponseModel<User>> read() {
+        // TODO HG 快实现
+        return Mono.just(new ResponseModel<>());
     }
 }
