@@ -18,10 +18,7 @@ import com.lt.catm.response.ResponseModel;
 import com.lt.catm.schema.KeyPairSchema;
 import com.lt.catm.common.RedisKeyUtil;
 
-
-@Tag(
-        name = "KeyPair"
-)
+@Tag(name = "KeyPair")
 @RestController
 public class KeyPairController {
     private final ReactiveRedisOperations<String, String> redisOperations;
@@ -36,9 +33,7 @@ public class KeyPairController {
      *
      * @return Mono<ResponseModel < KeyPairSchema>> 公钥
      */
-    @Operation(
-            description = "获取随机公钥"
-    )
+    @Operation(description = "获取随机公钥")
     @GetMapping("/keypair")
     public Mono<ResponseModel<KeyPairSchema>> generateKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
@@ -52,6 +47,9 @@ public class KeyPairController {
         ResponseModel<KeyPairSchema> response = new ResponseModel<>(data);
         // 设置密钥的过期时间5分钟, 并返回数据
         String key = RedisKeyUtil.getPrivateKeyCacheKey(kid);
-        return redisOperations.opsForValue().set(key, privateKey, Duration.ofMinutes(50)).thenReturn(response);
+        return redisOperations
+                .opsForValue()
+                .set(key, privateKey, Duration.ofMinutes(50))
+                .thenReturn(response);
     }
 }
