@@ -33,7 +33,8 @@ public class KeyPairController {
 
     /**
      * 获取加密密码的公钥.
-     * @return Mono<ResponseModel<KeyPairSchema>> 公钥
+     *
+     * @return Mono<ResponseModel < KeyPairSchema>> 公钥
      */
     @Operation(
             description = "获取随机公钥"
@@ -51,6 +52,6 @@ public class KeyPairController {
         ResponseModel<KeyPairSchema> response = new ResponseModel<>(data);
         // 设置密钥的过期时间5分钟, 并返回数据
         String key = RedisKeyUtil.getPrivateKeyCacheKey(kid);
-        return redisOperations.opsForValue().set(key, privateKey, Duration.ofMinutes(5)).thenReturn(response);
+        return redisOperations.opsForValue().set(key, privateKey, Duration.ofMinutes(50)).thenReturn(response);
     }
 }

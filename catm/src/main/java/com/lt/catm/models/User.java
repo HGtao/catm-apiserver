@@ -30,12 +30,14 @@ public class User {
     @Column("password")
     public String password;
 
+    @CreatedDate
+    @ReadOnlyProperty
     @Column("created_at")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @CreatedDate
     public LocalDateTime created_at;
 
     @LastModifiedDate
+    @ReadOnlyProperty
     @Column("updated_at")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     public LocalDateTime updated_at;
