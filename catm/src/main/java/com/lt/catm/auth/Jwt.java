@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 
-
 public class Jwt {
     // 7天过期
     private static final long EXPIRE_TIME = 7 * 24 * 60 * 60 * 1000;
@@ -24,7 +23,8 @@ public class Jwt {
         // 使用给定的算法和密钥创建签名
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
         // 添加自定义的 payload 信息
-        JWTCreator.Builder builder = JWT.create().withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME));
+        JWTCreator.Builder builder =
+                JWT.create().withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME));
         builder.withClaim("id", user.id);
         return builder.sign(algorithm);
     }
