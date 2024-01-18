@@ -1,5 +1,7 @@
 package com.lt.catm.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,24 +14,33 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.UUID;
 
-import com.lt.catm.ResponseModel;
+import com.lt.catm.response.ResponseModel;
 import com.lt.catm.schema.KeyPairSchema;
 import com.lt.catm.common.RedisKeyUtil;
 
 
+@Tag(
+        name = "KeyPair"
+)
 @RestController
-public class KeyPair {
+public class KeyPairController {
     private final ReactiveRedisOperations<String, String> redisOperations;
 
     @Autowired
-    public KeyPair(ReactiveRedisOperations<String, String> redisOperations) {
+    public KeyPairController(ReactiveRedisOperations<String, String> redisOperations) {
         this.redisOperations = redisOperations;
     }
 
-    @GetMapping("login/key")
+    /**
+     * 获取加密密码的公钥.
+     * @return Mono<ResponseModel<KeyPairSchema>> 公钥
+     */
+    @Operation(
+            description = "获取随机公钥"
+    )
+    @GetMapping("/keypair")
     public Mono<ResponseModel<KeyPairSchema>> generateKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(2048);
         java.security.KeyPair keyPair = keyPairGenerator.generateKeyPair();
         // 随机uuid保存密钥对
         String kid = UUID.randomUUID().toString();

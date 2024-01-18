@@ -1,4 +1,4 @@
-package com.lt.catm;
+package com.lt.catm.common;
 
 public class Constants {
     // 项目名称 参与redis缓存key的构建

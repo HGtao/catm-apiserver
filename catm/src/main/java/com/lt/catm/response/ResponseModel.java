@@ -1,4 +1,4 @@
-package com.lt.catm;
+package com.lt.catm.response;
 
 import lombok.Data;
 
