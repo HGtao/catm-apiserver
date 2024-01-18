@@ -15,10 +15,10 @@ public class WebConfig extends DelegatingWebFluxConfiguration {
 
     /**
      * 注册自定义参数解析器
-     * @param configurer
+     * @param ArgumentResolverConfigurer config
      */
     @Override
-    protected void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
-        configurer.addCustomResolver(customArgumentResolver());
+    protected void configureArgumentResolvers(ArgumentResolverConfigurer config) {
+        config.addCustomResolver(customArgumentResolver());
     }
 }

@@ -16,7 +16,7 @@ import java.util.UUID;
 
 import com.lt.catm.response.ResponseModel;
 import com.lt.catm.schema.KeyPairSchema;
-import com.lt.catm.common.RedisKeyUtil;
+import com.lt.catm.utils.RedisKeyUtil;
 
 @Tag(name = "KeyPair")
 @RestController
@@ -33,8 +33,8 @@ public class KeyPairController {
      *
      * @return Mono<ResponseModel < KeyPairSchema>> 公钥
      */
-    @Operation(description = "获取随机公钥")
     @GetMapping("/keypair")
+    @Operation(description = "获取随机公钥")
     public Mono<ResponseModel<KeyPairSchema>> generateKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         java.security.KeyPair keyPair = keyPairGenerator.generateKeyPair();
@@ -49,8 +49,7 @@ public class KeyPairController {
         String key = RedisKeyUtil.getPrivateKeyCacheKey(kid);
         return redisOperations
                 .opsForValue()
-                .set(key, privateKey, Duration.ofMinutes(50))
+                .set(key, privateKey, Duration.ofMinutes(5000))
                 .thenReturn(response);
     }
 }
-
