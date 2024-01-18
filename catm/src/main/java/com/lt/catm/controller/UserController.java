@@ -11,12 +11,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -40,7 +37,8 @@ import java.util.Base64;
 @RestController
 @RequestMapping(path = "/user")
 public class UserController {
-    @Resource UserRepository repository;
+    @Resource
+    UserRepository repository;
     private final ReactiveRedisOperations<String, String> redisOperations;
 
     @Autowired
@@ -60,7 +58,9 @@ public class UserController {
     public static final HttpException PasswordError =
             new HttpException(HttpStatus.BAD_REQUEST, 1003, "password err");
 
-    /** 创建用户的请求体. */
+    /**
+     * 创建用户的请求体.
+     */
     public static class CreateUserSchema {
         public String username;
         // 密码前端公钥加密
@@ -69,7 +69,9 @@ public class UserController {
         public String kid;
     }
 
-    /** 用户登录请求体 */
+    /**
+     * 用户登录请求体
+     */
     public static class LoginUserSchema {
         // 用户名
         public String username;
@@ -79,7 +81,20 @@ public class UserController {
         public String kid;
     }
 
-    /** User响应信息去掉关键信息. */
+    public static class UpdateUserSchema {
+        // 用户名
+        public String username;
+        // 修改密码
+        public String newPassword;
+        // 原密码
+        public String confirmPassword;
+        // 密钥ID
+        public String kid;
+    }
+
+    /**
+     * User响应信息去掉关键信息.
+     */
     public static class ResponseUser {
         public int id;
         public String username;
@@ -147,15 +162,13 @@ public class UserController {
                 .flatMap(
                         user -> {
                             AuthUser authUser = new AuthUser(user.getId());
-                            ResponseCookie jwtCookie =
-                                    ResponseCookie.from(
-                                                    Constants.COOKIES_JWT_NAME,
-                                                    Jwt.create(authUser))
-                                            .httpOnly(true)
-                                            .maxAge(Duration.ofDays(7))
-                                            .path("/")
-                                            .build();
-                            response.addCookie(jwtCookie);
+                            response.addCookie(ResponseCookie.from(
+                                            Constants.COOKIES_JWT_NAME,
+                                            Jwt.create(authUser))
+                                    .httpOnly(true)
+                                    .maxAge(Duration.ofDays(7))
+                                    .path("/")
+                                    .build());
                             return Mono.just(new ResponseModel<>(new ResponseUser(user)));
                         });
     }
@@ -163,20 +176,18 @@ public class UserController {
     @PostMapping("/logout")
     @Operation(description = "退出登录")
     public Mono<ResponseModel<Object>> logout(ServerHttpResponse response) {
-        ResponseCookie jwtCookie =
-                ResponseCookie.from(Constants.COOKIES_JWT_NAME, "")
-                        .httpOnly(true)
-                        .maxAge(0)
-                        .path("/")
-                        .build();
-        response.addCookie(jwtCookie);
+        response.addCookie(ResponseCookie.from(Constants.COOKIES_JWT_NAME, "")
+                .httpOnly(true)
+                .maxAge(0)
+                .path("/")
+                .build());
         return Mono.just(new ResponseModel<>());
     }
 
     @GetMapping("")
     @Operation(description = "获取当前用户登录信息-(1002 用户不存在)")
     public Mono<ResponseModel<ResponseUser>> auth(@JwtAuth AuthUser user) {
-        Mono<User> userMono = repository.findById(Long.valueOf(user.getId()));
+        Mono<User> userMono = repository.findById(user.getId());
         return userMono.switchIfEmpty(Mono.error(NotFoundUserError))
                 .flatMap(userModel -> Mono.just(new ResponseModel<>(new ResponseUser(userModel))));
     }
@@ -210,19 +221,66 @@ public class UserController {
                             if (passwordEncoder.matches(password, user.password)) {
                                 // 下发jwt
                                 AuthUser authUser = new AuthUser(user.getId());
-                                ResponseCookie jwtCookie =
-                                        ResponseCookie.from(
-                                                        Constants.COOKIES_JWT_NAME,
-                                                        Jwt.create(authUser))
-                                                .httpOnly(true)
-                                                .maxAge(Duration.ofDays(7))
-                                                .path("/")
-                                                .build();
-                                response.addCookie(jwtCookie);
+                                response.addCookie(ResponseCookie.from(
+                                                Constants.COOKIES_JWT_NAME,
+                                                Jwt.create(authUser))
+                                        .httpOnly(true)
+                                        .maxAge(Duration.ofDays(7))
+                                        .path("/")
+                                        .build());
                                 return Mono.just(new ResponseModel<>(new ResponseUser(user)));
                             } else {
                                 return Mono.error(PasswordError);
                             }
                         });
+    }
+
+    @PatchMapping("/modify")
+    @Operation(description = "修改用户密码-(1002 用户不存在 1003 密码错误)")
+    public Mono<ResponseModel<ResponseUser>> update(
+            @RequestBody UserController.UpdateUserSchema updateUserSchema,
+            ServerHttpResponse response) {
+        // 验证密码
+        Mono<String> confirmPasswordMono = decodePassword(updateUserSchema.confirmPassword, updateUserSchema.kid);
+        // 修改密码
+        Mono<String> newPasswordMono = decodePassword(updateUserSchema.newPassword, updateUserSchema.kid);
+        // username条件查询用户
+        User probe = new User();
+        probe.setUsername(updateUserSchema.username);
+        Example<User> query =
+                Example.of(
+                        probe,
+                        ExampleMatcher.matching()
+                                .withMatcher(
+                                        "username",
+                                        ExampleMatcher.GenericPropertyMatchers.exact()));
+        Mono<User> userMono = repository.findOne(query).switchIfEmpty(Mono.error(NotFoundUserError));
+        // 校验用户密码
+        Mono<User> userModelMono = Mono.zip(userMono, confirmPasswordMono)
+                .flatMap(
+                        tuple -> {
+                            User user = tuple.getT1();
+                            String password = tuple.getT2();
+                            if (passwordEncoder.matches(password, user.password)) {
+                                return Mono.just(user);
+                            } else {
+                                return Mono.error(PasswordError);
+                            }
+                        });
+        // 设置用户名和密码
+        return Mono.zip(userModelMono, newPasswordMono).flatMap(tuple -> {
+            User userModel = tuple.getT1();
+            String newPassword = tuple.getT2();
+            // 密码加密入库
+            userModel.setPassword(passwordEncoder.encode(newPassword));
+            // 删除当前的登录信息
+            response.addCookie(ResponseCookie.from(Constants.COOKIES_JWT_NAME, "")
+                    .httpOnly(true)
+                    .maxAge(0)
+                    .path("/")
+                    .build());
+            // 更新用户信息
+            return repository.save(userModel).thenReturn(new ResponseModel<>(new ResponseUser(userModel)));
+        });
     }
 }

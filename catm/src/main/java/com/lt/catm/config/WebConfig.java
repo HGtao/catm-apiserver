@@ -1,6 +1,6 @@
 package com.lt.catm.config;
 
-import com.lt.catm.ArgumentResolver.CustomArgumentResolver;
+import com.lt.catm.resolver.CustomArgumentResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration;

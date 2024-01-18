@@ -1,4 +1,4 @@
-package com.lt.catm.ArgumentResolver;
+package com.lt.catm.resolver;
 
 import com.lt.catm.annotation.JwtAuth;
 import com.lt.catm.auth.AuthUser;
@@ -12,22 +12,26 @@ import org.springframework.web.reactive.result.method.HandlerMethodArgumentResol
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-/** 自定义参数解析器 */
+/**
+ * 自定义参数解析器
+ */
 public class CustomArgumentResolver implements HandlerMethodArgumentResolver {
-    /** 确定此解析器是否支持特定的控制器方法参数 */
+    /**
+     * 确定此解析器是否支持特定的控制器方法参数
+     */
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         JwtAuth parameterAnnotation = parameter.getParameterAnnotation(JwtAuth.class);
         return parameterAnnotation != null && AuthUser.class.equals(parameter.getParameterType());
     }
 
-    /** 自定义参数解析器 解析参数 */
+    /**
+     * 自定义参数解析器 解析参数
+     */
     @Override
-    public Mono<Object> resolveArgument(
-            MethodParameter parameter, BindingContext bindingContext, ServerWebExchange exchange) {
+    public Mono<Object> resolveArgument(MethodParameter parameter, BindingContext bindingContext, ServerWebExchange exchange) {
         // 校验JWT
-        HttpCookie jwtToken =
-                exchange.getRequest().getCookies().getFirst(Constants.COOKIES_JWT_NAME);
+        HttpCookie jwtToken = exchange.getRequest().getCookies().getFirst(Constants.COOKIES_JWT_NAME);
         try {
             return Mono.just(Jwt.verify(jwtToken));
         } catch (HttpException exception) {

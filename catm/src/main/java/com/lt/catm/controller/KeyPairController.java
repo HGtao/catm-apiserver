@@ -49,7 +49,7 @@ public class KeyPairController {
         String key = RedisKeyUtil.getPrivateKeyCacheKey(kid);
         return redisOperations
                 .opsForValue()
-                .set(key, privateKey, Duration.ofMinutes(5000))
+                .set(key, privateKey, Duration.ofMinutes(5))
                 .thenReturn(response);
     }
 }
