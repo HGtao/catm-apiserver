@@ -1,10 +1,12 @@
 package com.lt.catm.controller;
 
+import com.lt.catm.annotation.JwtAuth;
 import com.lt.catm.auth.AuthUser;
 import com.lt.catm.auth.Jwt;
 import com.lt.catm.common.Constants;
-import com.lt.catm.common.RedisKeyUtil;
+import com.lt.catm.utils.RedisKeyUtil;
 import com.lt.catm.exceptions.HttpException;
+import com.lt.catm.utils.ReactiveRequestContextHolder;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,19 +68,19 @@ public class UserController {
     public Mono<String> decodePassword(String password, String kid) {
         String key = RedisKeyUtil.getPrivateKeyCacheKey(kid);
         return redisOperations.opsForValue().get(key).switchIfEmpty(
-                    Mono.error(DecodePasswordError)
-                ).flatMap(privateKey -> {
-                    try {
-                        PrivateKey priKey = KeyFactory.getInstance("RSA")
-                                .generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKey)));
-                        Cipher cipher = Cipher.getInstance("RSA");
-                        cipher.init(Cipher.DECRYPT_MODE, priKey);
-                        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(password));
-                        return Mono.just(new String(decryptedBytes));
-                    } catch (Exception e) {
-                        return Mono.error(DecodePasswordError);
-                    }
-                });
+                Mono.error(DecodePasswordError)
+        ).flatMap(privateKey -> {
+            try {
+                PrivateKey priKey = KeyFactory.getInstance("RSA")
+                        .generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKey)));
+                Cipher cipher = Cipher.getInstance("RSA");
+                cipher.init(Cipher.DECRYPT_MODE, priKey);
+                byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(password));
+                return Mono.just(new String(decryptedBytes));
+            } catch (Exception e) {
+                return Mono.error(DecodePasswordError);
+            }
+        });
     }
 
     @Operation(
@@ -99,5 +101,11 @@ public class UserController {
             response.addCookie(jwtCookie);
             return Mono.just(new ResponseModel<>(user));
         });
+    }
+
+    @GetMapping("")
+    @JwtAuth
+    public Mono<AuthUser> auth(@JwtAuth AuthUser user) {
+        return Mono.just(user);
     }
 }

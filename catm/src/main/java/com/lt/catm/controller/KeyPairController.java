@@ -16,7 +16,7 @@ import java.util.UUID;
 
 import com.lt.catm.response.ResponseModel;
 import com.lt.catm.schema.KeyPairSchema;
-import com.lt.catm.common.RedisKeyUtil;
+import com.lt.catm.utils.RedisKeyUtil;
 
 
 @Tag(
@@ -51,6 +51,6 @@ public class KeyPairController {
         ResponseModel<KeyPairSchema> response = new ResponseModel<>(data);
         // 设置密钥的过期时间5分钟, 并返回数据
         String key = RedisKeyUtil.getPrivateKeyCacheKey(kid);
-        return redisOperations.opsForValue().set(key, privateKey, Duration.ofMinutes(5)).thenReturn(response);
+        return redisOperations.opsForValue().set(key, privateKey, Duration.ofMinutes(50)).thenReturn(response);
     }
 }
