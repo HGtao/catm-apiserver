@@ -201,7 +201,7 @@ public class UserController {
         Mono<String> passwordMono = decodePassword(loginUserSchema.password, loginUserSchema.kid);
         // username条件查询用户
         User probe = new User();
-        probe.setUsername(loginUserSchema.username);
+        probe.username = loginUserSchema.username;
         Example<User> query =
                 Example.of(
                         probe,
@@ -246,7 +246,7 @@ public class UserController {
         Mono<String> newPasswordMono = decodePassword(updateUserSchema.newPassword, updateUserSchema.kid);
         // username条件查询用户
         User probe = new User();
-        probe.setUsername(updateUserSchema.username);
+        probe.username = updateUserSchema.username;
         Example<User> query =
                 Example.of(
                         probe,
@@ -272,7 +272,7 @@ public class UserController {
             User userModel = tuple.getT1();
             String newPassword = tuple.getT2();
             // 密码加密入库
-            userModel.setPassword(passwordEncoder.encode(newPassword));
+            userModel.password = passwordEncoder.encode(newPassword);
             // 删除当前的登录信息
             response.addCookie(ResponseCookie.from(Constants.COOKIES_JWT_NAME, "")
                     .httpOnly(true)

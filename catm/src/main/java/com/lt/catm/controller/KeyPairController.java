@@ -45,7 +45,7 @@ public class KeyPairController {
         // 响应数据
         KeyPairSchema data = new KeyPairSchema(kid, publicKey);
         ResponseModel<KeyPairSchema> response = new ResponseModel<>(data);
-        // 设置密钥的过期时间5分钟, 并返回数据
+        // 设置密钥的过期时间5分钟, 并返回数n
         String key = RedisKeyUtil.getPrivateKeyCacheKey(kid);
         return redisOperations
                 .opsForValue()
