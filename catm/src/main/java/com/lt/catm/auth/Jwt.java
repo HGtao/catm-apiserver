@@ -8,24 +8,26 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.lt.catm.exceptions.HttpException;
 import org.springframework.http.HttpCookie;
-import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 
+import static com.lt.catm.common.ErrorCodeConstants.JWT_AUTH_ERROR;
+
+
+/**
+ * @author yuwu
+ */
 public class Jwt {
     // 7天过期
     private static final long EXPIRE_TIME = 7 * 24 * 60 * 60 * 1000;
     private static final String SECRET = "q2bogyQFlXCSV81h";
-    // HttpStatus httpStatus, int code, String msg
-    private static final HttpException JwtAuthError = new HttpException(HttpStatus.UNAUTHORIZED, 1000, "jwt error");
-
     public static String create(AuthUser user) {
         // 使用给定的算法和密钥创建签名
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
         // 添加自定义的 payload 信息
         JWTCreator.Builder builder =
                 JWT.create().withExpiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME));
-        builder.withClaim("id", user.id);
+        builder.withClaim("id", user.getId());
         return builder.sign(algorithm);
     }
 
@@ -40,6 +42,6 @@ public class Jwt {
                 // ignore
             }
         }
-        throw JwtAuthError;
+        throw JWT_AUTH_ERROR;
     }
 }

@@ -6,11 +6,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class AuthUser {
     // 用户ID
-    public int id;
-
-    public AuthUser(int id) {
-        this.id = id;
-    }
+    private Integer id;
 }
