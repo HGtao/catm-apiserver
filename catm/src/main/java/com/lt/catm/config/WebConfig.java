@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 
+/**
+ * @author zt
+ */
 @Configuration
 public class WebConfig extends DelegatingWebFluxConfiguration {
     @Bean
@@ -15,7 +18,6 @@ public class WebConfig extends DelegatingWebFluxConfiguration {
 
     /**
      * 注册自定义参数解析器
-     * @param ArgumentResolverConfigurer config
      */
     @Override
     protected void configureArgumentResolvers(ArgumentResolverConfigurer config) {

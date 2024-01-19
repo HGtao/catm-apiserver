@@ -10,6 +10,7 @@ import com.lt.catm.exceptions.HttpException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -33,6 +34,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
+/**
+ * @author yuwu
+ */
 @Tag(name = "用户")
 @RestController
 @RequestMapping(path = "/user")
@@ -49,13 +53,13 @@ public class UserController {
     // 创建密码编码器
     private final Argon2PasswordEncoder passwordEncoder =
             Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
-    public static final HttpException DecodePasswordError =
+    public static final HttpException DECODEPASSWORDERROR =
             new HttpException(HttpStatus.BAD_REQUEST, 1001, "decode password err");
 
-    public static final HttpException NotFoundUserError =
+    public static final HttpException NOTFOUNDUSERERROR =
             new HttpException(HttpStatus.NOT_FOUND, 1002, "user not found");
 
-    public static final HttpException PasswordError =
+    public static final HttpException PASSWORDERROR =
             new HttpException(HttpStatus.BAD_REQUEST, 1003, "password err");
 
     /**
@@ -124,7 +128,7 @@ public class UserController {
         return redisOperations
                 .opsForValue()
                 .get(key)
-                .switchIfEmpty(Mono.error(DecodePasswordError))
+                .switchIfEmpty(Mono.error(DECODEPASSWORDERROR))
                 .flatMap(
                         privateKey -> {
                             try {
@@ -141,7 +145,7 @@ public class UserController {
                                                 cipher.doFinal(
                                                         Base64.getDecoder().decode(password))));
                             } catch (Exception e) {
-                                return Mono.error(DecodePasswordError);
+                                return Mono.error(DECODEPASSWORDERROR);
                             }
                         });
     }
@@ -188,7 +192,7 @@ public class UserController {
     @Operation(description = "获取当前用户登录信息-(1002 用户不存在)")
     public Mono<ResponseModel<ResponseUser>> auth(@JwtAuth AuthUser user) {
         Mono<User> userMono = repository.findById(user.getId());
-        return userMono.switchIfEmpty(Mono.error(NotFoundUserError))
+        return userMono.switchIfEmpty(Mono.error(NOTFOUNDUSERERROR))
                 .flatMap(userModel -> Mono.just(new ResponseModel<>(new ResponseUser(userModel))));
     }
 
@@ -210,7 +214,7 @@ public class UserController {
                                         "username",
                                         ExampleMatcher.GenericPropertyMatchers.exact()));
         Mono<User> userMono =
-                repository.findOne(query).switchIfEmpty(Mono.error(NotFoundUserError));
+                repository.findOne(query).switchIfEmpty(Mono.error(NOTFOUNDUSERERROR));
         // 对比密码
         // TODO ylei 限制次数防止爆破接口
         return Mono.zip(userMono, passwordMono)
@@ -230,7 +234,7 @@ public class UserController {
                                         .build());
                                 return Mono.just(new ResponseModel<>(new ResponseUser(user)));
                             } else {
-                                return Mono.error(PasswordError);
+                                return Mono.error(PASSWORDERROR);
                             }
                         });
     }
@@ -254,7 +258,7 @@ public class UserController {
                                 .withMatcher(
                                         "username",
                                         ExampleMatcher.GenericPropertyMatchers.exact()));
-        Mono<User> userMono = repository.findOne(query).switchIfEmpty(Mono.error(NotFoundUserError));
+        Mono<User> userMono = repository.findOne(query).switchIfEmpty(Mono.error(NOTFOUNDUSERERROR));
         // 校验用户密码
         Mono<User> userModelMono = Mono.zip(userMono, confirmPasswordMono)
                 .flatMap(
@@ -264,7 +268,7 @@ public class UserController {
                             if (passwordEncoder.matches(password, user.password)) {
                                 return Mono.just(user);
                             } else {
-                                return Mono.error(PasswordError);
+                                return Mono.error(PASSWORDERROR);
                             }
                         });
         // 设置用户名和密码
