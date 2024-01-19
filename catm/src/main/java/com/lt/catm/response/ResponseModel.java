@@ -1,8 +1,6 @@
 package com.lt.catm.response;
 
 import lombok.Data;
-import reactor.core.publisher.Mono;
-
 import java.io.Serializable;
 
 
@@ -22,36 +20,13 @@ public class ResponseModel<T> implements Serializable {
         this.data = data;
     }
 
-    public static <T> Mono<ResponseModel<T>> successReactor(T data) {
-        ResponseModel<T> responseModel = new ResponseModel<>();
-        responseModel.code = 200;
-        responseModel.msg = "success";
-        responseModel.data = data;
-        return Mono.just(responseModel);
-    }
-
     public static <T> ResponseModel<T> success(T data) {
-        ResponseModel<T> responseModel = new ResponseModel<>();
-        responseModel.code = 200;
-        responseModel.msg = "success";
-        responseModel.data = data;
-        return responseModel;
+        return new ResponseModel<>(200, "success", data);
     }
 
     public static <T> ResponseModel<T> error(Integer code, String msg) {
-        ResponseModel<T> responseModel = new ResponseModel<>();
-        responseModel.code = code;
-        responseModel.msg = msg;
-        return responseModel;
+        return new ResponseModel<>(code, msg, null);
     }
-
-    public static <T> Mono<ResponseModel<T>> errorReactor(Integer code, String msg) {
-        ResponseModel<T> responseModel = new ResponseModel<>();
-        responseModel.code = code;
-        responseModel.msg = msg;
-        return Mono.just(responseModel);
-    }
-
 
     public ResponseModel(int code, String msg, T data) {
         this.code = code;

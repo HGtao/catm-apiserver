@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AuthUser {
     // 用户ID
-    private Integer id;
+    public Integer id;
 }
