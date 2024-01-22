@@ -98,6 +98,18 @@
                 <artifactId>spring-boot-starter-aop</artifactId>
                 <version>3.2.1</version>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/io.minio/minio 文件存储系统-->
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>8.4.0</version>
+            </dependency>
+            <!--hutu工具包-->
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>5.8.16</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

@@ -19,3 +19,9 @@ springdoc:
     disable-swagger-default-url: true
     use-root-path: true
 
+#minio文件存储
+minio:
+  endpoint: http://124.222.37.186:9002 #Minio服务所在地址
+  bucketName: test #存储桶名称
+  accessKey: KyqCVc0VNLsh1mHsyAxA #访问的key
+  secretKey: EFayii2PqXDUcUS7vPDuqf1FzZ46c6iROgRHFksE #访问的秘钥
