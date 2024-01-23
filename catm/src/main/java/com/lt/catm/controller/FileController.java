@@ -1,4 +1,4 @@
-package com.lt.catm.controller.file;
+package com.lt.catm.controller;
 
 import com.lt.catm.response.ResponseModel;
 import com.lt.catm.utils.FileUtil;

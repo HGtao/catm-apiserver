@@ -1,4 +1,4 @@
-package com.lt.catm.config.minio;
+package com.lt.catm.config;
 
 import io.minio.MinioClient;
 import lombok.Data;

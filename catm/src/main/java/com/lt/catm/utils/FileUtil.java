@@ -46,12 +46,15 @@ public class FileUtil {
      */
     public static Mono<String> fileUploader(Flux<DataBuffer> dataBufferFlux,String type,String fileName) {
         String path = IdUtil.simpleUUID() + "-" + fileName;
-        return DataBufferUtils.join(dataBufferFlux)
+        return DataBufferUtils.join(dataBufferFlux) // 合并为一个完整的数据缓冲区
                 .flatMap(dataBuffer -> {
                     try {
                         // 仅当Minio上传被订阅时, 将ByteBuffer转换成InputStream，并执行上传
                         return Mono.fromCallable(() -> {
-                            ByteArrayInputStream inputStream = new ByteArrayInputStream(dataBuffer.asByteBuffer().array());
+                            byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                            dataBuffer.read(bytes); //读取数据到字节数组
+                            DataBufferUtils.release(dataBuffer); //释放资源
+                            ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
                             minioClient.putObject(PutObjectArgs.builder()
                                     .bucket(bucketName) // bucket 必须传递
                                     .contentType(type) // 文件类型 "text/plain"
@@ -62,7 +65,8 @@ public class FileUtil {
                             inputStream.close();
                             // 返回文件路径
                             return path.startsWith("/") ? endpointUrl + path : endpointUrl + "/" + path;
-                        }).subscribeOn(Schedulers.boundedElastic()); // 使用支持阻塞操作的调度器
+                            // 使用支持阻塞操作的调度器,Schedulers.boundedElastic()是为了非阻塞式回退策略准备的调度器，它为可能的阻塞任务（如I/O操作）提供一个弹性线程池
+                        }).subscribeOn(Schedulers.boundedElastic());
                     } catch (Exception e) {
                         // 释放DataBuffer资源并处理异常
                         DataBufferUtils.release(dataBuffer);
@@ -77,18 +81,18 @@ public class FileUtil {
      * @param path 文件路径
      * @return 成功标志
      */
-    public static Boolean fileDelete(String path) {
-        boolean flag;
-        try {
-            minioClient.removeObject(RemoveObjectArgs.builder()
-                    .bucket(bucketName)
-                    .object(path)
-                    .build());
-            flag = true;
-        } catch (Exception e) {
-            flag = false;
-            log.info("delete file err : ", e);
-        }
-        return flag;
+    public static Mono<Boolean> fileDelete(String path) {
+       return Mono.fromCallable(() -> {
+            try {
+                minioClient.removeObject(RemoveObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(path)
+                        .build());
+                return true;
+            } catch (Exception e) {
+                log.info("delete file err : {}", e.getMessage(),e);
+                return false;
+            }
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 }
