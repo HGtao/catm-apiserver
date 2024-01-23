@@ -1,11 +1,9 @@
 package com.lt.catm.utils;
 
-import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.IdUtil;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
-import io.minio.errors.*;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +16,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 @Component
 public class FileUtil {
@@ -84,7 +78,6 @@ public class FileUtil {
      * @return 成功标志
      */
     public static Boolean fileDelete(String path) {
-        MinioClient minioClient = SpringUtil.getBean(MinioClient.class);
         boolean flag;
         try {
             minioClient.removeObject(RemoveObjectArgs.builder()
@@ -92,9 +85,7 @@ public class FileUtil {
                     .object(path)
                     .build());
             flag = true;
-        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
-                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
-                 XmlParserException e) {
+        } catch (Exception e) {
             flag = false;
             log.info("delete file err : ", e);
         }
