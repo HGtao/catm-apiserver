@@ -1,0 +1,27 @@
+server:
+  port: 8089
+
+logging:
+  level:
+    org.springframework.r2dbc: debug
+
+spring:
+  r2dbc:
+    url: ${MYSQL_DB_URL:r2dbc:mysql://root:IzO6Jqs5ncX.Nq6LrKRUKoSx@127.0.0.1:3306/catm?charset=utf8mb4}
+  redis:
+    url: ${REDIS_URL:redis://127.0.0.1:6379/0}
+
+springdoc:
+  version: '@springdoc.version@'
+  swagger-ui:
+    display-request-duration: true
+    operationsSorter: method
+    disable-swagger-default-url: true
+    use-root-path: true
+
+
+minio:
+  endpoint: http://124.222.37.186:9002
+  bucketName: test
+  accessKey: KyqCVc0VNLsh1mHsyAxA
+  secretKey: EFayii2PqXDUcUS7vPDuqf1FzZ46c6iROgRHFksE

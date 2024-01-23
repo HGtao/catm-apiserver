@@ -1,22 +1,33 @@
 package com.lt.catm.response;
 
 import lombok.Data;
+import reactor.core.publisher.Mono;
+
+import java.io.Serializable;
 
 
 @Data
-public class ResponseModel<T> {
+public class ResponseModel<T> implements Serializable {
     // 业务码, 如果没设置默认200代表正常
-    public int code = 200;
+    private Integer code = 200;
     // 返回消息默认为null
-    public String msg = null;
+    private String msg = null;
     // 数据
-    public T data = null;
+    private T data = null;
 
     public ResponseModel() {
     }
 
     public ResponseModel(T data) {
         this.data = data;
+    }
+
+    public static <T> ResponseModel<T> success(T data) {
+        return new ResponseModel<>(200, "success", data);
+    }
+
+    public static <T> ResponseModel<T> error(Integer code, String msg) {
+        return new ResponseModel<>(code, msg, null);
     }
 
     public ResponseModel(int code, String msg, T data) {

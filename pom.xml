@@ -38,13 +38,16 @@
                 <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
                 <version>2.3.0</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.auth0</groupId>
+                <artifactId>java-jwt</artifactId>
+                <version>3.18.2</version>
+		    </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-crypto</artifactId>
                 <version>6.2.1</version>
             </dependency>
-
             <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15to18 -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
@@ -92,8 +95,20 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-security</artifactId>
+                <artifactId>spring-boot-starter-aop</artifactId>
                 <version>3.2.1</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/io.minio/minio 文件存储系统-->
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>8.4.0</version>
+            </dependency>
+            <!--hutu工具包-->
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>5.8.16</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
