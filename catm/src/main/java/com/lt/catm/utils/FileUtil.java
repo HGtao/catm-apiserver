@@ -1,5 +1,7 @@
 package com.lt.catm.utils;
 
+import cn.hutool.core.lang.UUID;
+import cn.hutool.core.util.IdUtil;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
@@ -48,8 +50,8 @@ public class FileUtil {
      * 上传文件到minio服务器
      * @return 完整的可访问路径
      */
-    public static Mono<String> fileUploader(Flux<DataBuffer> dataBufferFlux) {
-        String path = "/test";
+    public static Mono<String> fileUploader(Flux<DataBuffer> dataBufferFlux,String type,String fileName) {
+        String path = IdUtil.simpleUUID() + "-" + fileName;
         return DataBufferUtils.join(dataBufferFlux)
                 .flatMap(dataBuffer -> {
                     try {
@@ -58,7 +60,7 @@ public class FileUtil {
                             ByteArrayInputStream inputStream = new ByteArrayInputStream(dataBuffer.asByteBuffer().array());
                             minioClient.putObject(PutObjectArgs.builder()
                                     .bucket(bucketName) // bucket 必须传递
-                                    .contentType("text/plain") // 文件类型
+                                    .contentType(type) // 文件类型 "text/plain"
                                     .object(path) // 相对路径作为 key
                                     .stream(inputStream, -1, 10485760) // 文件内容
                                     .build());
