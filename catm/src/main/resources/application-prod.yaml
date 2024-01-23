@@ -19,9 +19,8 @@ springdoc:
     disable-swagger-default-url: true
     use-root-path: true
 
-
 minio:
-  endpoint: http://124.222.37.186:9002
-  bucketName: catm
-  accessKey: KyqCVc0VNLsh1mHsyAxA
-  secretKey: EFayii2PqXDUcUS7vPDuqf1FzZ46c6iROgRHFksE
+  endpoint: ${MINIO_ENDPOINT:http://127.0.0.1:9000}
+  bucketName: ${MINIO_BUCKET_NAME:catm}
+  accessKey: ${MINIO_ACCESS_KEY:12345678}
+  secretKey: ${MINIO_SECRET_KEY:12345678}

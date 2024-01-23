@@ -33,6 +33,7 @@ public class CustomArgumentResolver implements HandlerMethodArgumentResolver {
         // 校验JWT
         HttpCookie jwtToken = exchange.getRequest().getCookies().getFirst(Constants.COOKIES_JWT_NAME);
         try {
+            // TODO ylei jwt快过期的时候重新签发jwt
             return Mono.just(Jwt.verify(jwtToken));
         } catch (HttpException exception) {
             return Mono.error(exception);
